@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
     /* close file as soon as possible */
     fclose(fp);
 
-    e = pHead;
-
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
+
+    /* point e back to pHead */
     e = pHead;
 
     assert(findName(input, e) &&
@@ -92,8 +92,12 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
-    if (pHead->pNext) free(pHead->pNext);
-    free(pHead);
+    /* free all memory in linked list */
+    while (pHead) {
+        e = pHead;
+        pHead = pHead->pNext;
+        free(e);
+    }
 
     return 0;
 }
