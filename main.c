@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
         pHead = pHead->pNext;
         free(e);
     }
+    free(pHead);
 
     return 0;
 }
