@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include IMPL
 
@@ -27,6 +28,8 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
+// static void (*append_func[])() = {append, append_with_mempool};
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
@@ -42,23 +45,46 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+#ifdef POOL
+    /* get number of line in the file */
+    unsigned int num_line = 0;
+    unsigned int redundancy = 500;
+    while (fgets(line, sizeof(line), fp)) num_line++;
+    rewind(fp);
+    printf("Number of line: %d\n", num_line);
+    /* allocate memory for the memory pool */
+    pool *pPool = pool_create(sizeof(entry) * num_line + redundancy);
+#endif
+
     /* build the entry */
     entry *pHead, *e;
+#ifdef POOL
+    pHead = pool_alloc(pPool, sizeof(entry));
+#else
     pHead = (entry *) malloc(sizeof(entry));
+#endif
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
 
+
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
+    printf("PID = %d\n", getpid());
+    // sleep(5);
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
+        // printf("pool_ava = %d\n", pool_available(pPool));
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
         i = 0;
+#ifdef POOL
+        e = append_with_mempool(line, e, pPool);
+#else
         e = append(line, e);
+#endif
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
@@ -92,6 +118,9 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
+#ifdef POOL
+    pool_destroy(pPool);
+#else
     /* free all memory in linked list */
     while (pHead) {
         e = pHead;
@@ -99,6 +128,7 @@ int main(int argc, char *argv[])
         free(e);
     }
     free(pHead);
+#endif
 
     return 0;
 }
