@@ -30,6 +30,11 @@ phonebook_mempool: $(SRCS_common) phonebook_mempool.c phonebook_mempool.h
 		-DIMPL="\"$@.h\"" -DPOOL="1" -o $@ \
 		$(SRCS_common) $@.c
 
+phonebook_hash: $(SRCS_common) phonebook_hash.c phonebook_hash.h
+	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
+		-DIMPL="\"$@.h\"" -DHASH="1" -o $@ \
+		$(SRCS_common) $@.c
+
 run: $(EXEC)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
 	watch -d -t "./phonebook_orig && echo 3 | sudo tee /proc/sys/vm/drop_caches"

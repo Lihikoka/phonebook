@@ -4,6 +4,7 @@
 #include <time.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include IMPL
 
@@ -60,6 +61,14 @@ int main(int argc, char *argv[])
     pool *pPool = pool_create(sizeof(entry) * num_line + redundancy);
 #endif
 
+#ifdef HASH
+    unsigned int num_line = count_file_line(fp);
+    printf("Number of line: %u\n", num_line);
+    /* Emperically, loading factor <= 0.75 would give a better performance */
+    unsigned int size = (int)(num_line / 0.75);
+    entry *ht[size];
+#endif
+
     /* build the entry */
     entry *pHead, *e;
 #ifdef POOL
@@ -82,10 +91,11 @@ int main(int argc, char *argv[])
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
-        printf("%s\n", line);
         i = 0;
 #ifdef POOL
         e = append_with_mempool(line, e, pPool);
+#elif defined HASH
+        append_hash(line, ht, size);
 #else
         e = append(line, e);
 #endif
@@ -101,17 +111,29 @@ int main(int argc, char *argv[])
 
     /* point e back to pHead */
     e = pHead;
-
+#ifdef HASH
+    assert(findName_hash(input, ht, size) &&
+           "Did you implement findName_hash() in " IMPL "?");
+#else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
+#endif
+#ifdef HASH
+    assert(0 == strcmp(findName_hash(input, ht, size)->lastName, "zyxel"));
+#else
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
+#endif
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
+#ifdef HASH
+    findName_hash(input, ht, size);
+#else
     findName(input, e);
+#endif
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
