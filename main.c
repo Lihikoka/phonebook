@@ -28,7 +28,14 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
-// static void (*append_func[])() = {append, append_with_mempool};
+static unsigned int count_file_line(FILE* fp)
+{
+    unsigned int num_line = 0;
+    char line[MAX_LAST_NAME_SIZE];
+    while (fgets(line, sizeof(line), fp)) num_line++;
+    rewind(fp);
+    return num_line;
+}
 
 int main(int argc, char *argv[])
 {
@@ -46,13 +53,10 @@ int main(int argc, char *argv[])
     }
 
 #ifdef POOL
-    /* get number of line in the file */
-    unsigned int num_line = 0;
-    unsigned int redundancy = 500;
-    while (fgets(line, sizeof(line), fp)) num_line++;
-    rewind(fp);
-    printf("Number of line: %d\n", num_line);
+    unsigned int num_line = count_file_line(fp);
+    printf("Number of line: %u\n", num_line);
     /* allocate memory for the memory pool */
+    unsigned int redundancy = 500;
     pool *pPool = pool_create(sizeof(entry) * num_line + redundancy);
 #endif
 
@@ -75,10 +79,10 @@ int main(int argc, char *argv[])
     // sleep(5);
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
-        // printf("pool_ava = %d\n", pool_available(pPool));
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
+        printf("%s\n", line);
         i = 0;
 #ifdef POOL
         e = append_with_mempool(line, e, pPool);
