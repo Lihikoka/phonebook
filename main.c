@@ -10,6 +10,8 @@
 
 #ifdef OPT
 #define OUT_FILE "opt.txt"
+#elif defined HASH
+#define OUT_FILE "hash.txt"
 #else
 #define OUT_FILE "orig.txt"
 #endif
@@ -65,8 +67,8 @@ int main(int argc, char *argv[])
     unsigned int num_line = count_file_line(fp);
     printf("Number of line: %u\n", num_line);
     /* Emperically, loading factor <= 0.75 would give a better performance */
-    unsigned int size = (int)(num_line / 0.75);
-    entry *ht[size];
+    unsigned int ht_size = (int)(num_line / 0.75);
+    entry *ht[ht_size];
 #endif
 
     /* build the entry */
@@ -84,7 +86,7 @@ int main(int argc, char *argv[])
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
-    printf("PID = %d\n", getpid());
+    // printf("PID = %d\n", getpid());
     // sleep(5);
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
@@ -95,7 +97,7 @@ int main(int argc, char *argv[])
 #ifdef POOL
         e = append_with_mempool(line, e, pPool);
 #elif defined HASH
-        append_hash(line, ht, size);
+        append_hash(line, ht, ht_size);
 #else
         e = append(line, e);
 #endif
@@ -112,14 +114,14 @@ int main(int argc, char *argv[])
     /* point e back to pHead */
     e = pHead;
 #ifdef HASH
-    assert(findName_hash(input, ht, size) &&
+    assert(findName_hash(input, ht, ht_size) &&
            "Did you implement findName_hash() in " IMPL "?");
 #else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
 #endif
 #ifdef HASH
-    assert(0 == strcmp(findName_hash(input, ht, size)->lastName, "zyxel"));
+    assert(0 == strcmp(findName_hash(input, ht, ht_size)->lastName, "zyxel"));
 #else
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
 #endif
@@ -130,7 +132,7 @@ int main(int argc, char *argv[])
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
 #ifdef HASH
-    findName_hash(input, ht, size);
+    findName_hash(input, ht, ht_size);
 #else
     findName(input, e);
 #endif
@@ -146,6 +148,11 @@ int main(int argc, char *argv[])
 
 #ifdef POOL
     pool_destroy(pPool);
+#elif defined HASH
+    for (int i = 0; i < ht_size; i++) {
+        if (!ht[i])
+            free(ht[i]);
+    }
 #else
     /* free all memory in linked list */
     while (pHead) {

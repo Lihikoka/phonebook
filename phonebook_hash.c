@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#   include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
@@ -20,8 +20,8 @@ entry *findName_hash(char lastName[], entry *ht[], int ht_size)
     unsigned int hash_value = BKDRhash(lastName) % ht_size;
     if (NULL == ht[hash_value]) return NULL;
     for (int i = 0; i < ht_size; i++)
-        if (strcmp(lastName, ht[hash_value + i * i]->lastName))
-            return ht[hash_value + i * i];
+        if (!strcmp(lastName, ht[(hash_value + i * i) % ht_size]->lastName))
+            return ht[(hash_value + i * i) % ht_size];
 
     return NULL;
 }
@@ -51,9 +51,9 @@ void append_hash(char lastName[], entry *ht[], int ht_size)
 {
     unsigned int hash_value = BKDRhash(lastName) % ht_size;
     for (int i = 0; i < ht_size; i++) {
-        if (NULL == ht[hash_value + i * i]) {
-            ht[hash_value + i * i] = (entry*) malloc(sizeof(entry));
-            strcpy(ht[hash_value + i * i]->lastName, lastName);
+        if (NULL == ht[(hash_value + i * i) % ht_size]) {
+            ht[(hash_value + i * i) % ht_size] = (entry*) malloc(sizeof(entry));
+            strcpy(ht[(hash_value + i * i) % ht_size]->lastName, lastName);
             break;
         }
     }
