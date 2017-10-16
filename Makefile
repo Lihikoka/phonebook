@@ -3,7 +3,7 @@ CFLAGS_common ?= -Wall -std=gnu99 -g
 CFLAGS_orig = -O0
 CFLAGS_opt  = -O0
 
-EXEC = phonebook_orig phonebook_opt phonebook_hash
+EXEC = phonebook_orig phonebook_opt phonebook_mempool phonebook_hash
 
 GIT_HOOKS := .git/hooks/applied
 .PHONY: all
@@ -46,6 +46,9 @@ cache-test: $(EXEC)
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
 		./phonebook_opt
+	perf stat --repeat 100 \
+		-e cache-misses,cache-references,instructions,cycles \
+		./phonebook_mempool
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
 		./phonebook_hash

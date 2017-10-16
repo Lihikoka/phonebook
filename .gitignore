@@ -10,10 +10,7 @@ phonebook_orig
 phonebook_hash
 phonebook_mempool
 calculate
-orig.txt
-opt.txt
-hash.txt
-output.txt
+*.txt
 runtime.png
 *.png
 /hash

@@ -37,8 +37,8 @@ entry *append_with_mempool(char lastName[], entry *e, pool *p)
 
 pool *pool_create(size_t size)
 {
-    pool *p = (pool*) malloc(size + sizeof(pool));
-    p->next = (entry*) &p[1];
+    pool *p = (pool *) malloc(size + sizeof(pool));
+    p->next = (entry *) &p[1];
     p->end = p->next + size;
     return p;
 }
@@ -55,8 +55,8 @@ size_t pool_available(pool *p)
 
 entry *pool_alloc(pool *p, size_t size)
 {
-    if (pool_available(p) < sizeof(entry)) return NULL;
-    entry *mem = (entry*) p->next;
-    p->next += size;
+    if (pool_available(p) < size) return NULL;
+    entry *mem = p->next;
+    p->next = (void *)p->next + size;
     return mem;
 }

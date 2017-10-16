@@ -10,6 +10,8 @@
 
 #ifdef OPT
 #define OUT_FILE "opt.txt"
+#elif defined POOL
+#define OUT_FILE "mempool.txt"
 #elif defined HASH
 #define OUT_FILE "hash.txt"
 #else
@@ -120,6 +122,7 @@ int main(int argc, char *argv[])
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
 #endif
+
 #ifdef HASH
     assert(0 == strcmp(findName_hash(input, ht, ht_size)->lastName, "zyxel"));
 #else

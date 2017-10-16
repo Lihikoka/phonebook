@@ -36,5 +36,6 @@ entry *append(char lastName[], entry *e);
 entry *append_with_mempool(char lastName[], entry *e, pool *p);
 pool *pool_create(size_t size);
 void pool_destroy(pool *p);
+size_t pool_available(pool *p);
 entry *pool_alloc(pool *p, size_t size);
 #endif

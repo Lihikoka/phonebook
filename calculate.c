@@ -24,6 +24,7 @@ int main(void)
     }
     fclose(fp);
 
+    /* for optimized */
     fp = fopen("opt.txt", "r");
     if (!fp) {
         fp = fopen("orig.txt", "r");
@@ -44,6 +45,25 @@ int main(void)
         opt_sum_f += opt_f;
     }
 
+    /* for memory pool */
+    fp = fopen("mempool.txt", "r");
+    if (!fp) {
+        printf("ERROR opening input file opt.txt\n");
+        exit(0);
+    }
+    double mempool_sum_a = 0.0, mempool_sum_f = 0.0, mempool_a, mempool_f;
+    for (i = 0; i < 100; i++) {
+        if (!fp) {
+            printf("ERROR opening input file mempool.txt\n");
+            exit(0);
+        }
+        fscanf(fp, "%s %s %lf %lf\n", append, find, &mempool_a, &mempool_f);
+        mempool_sum_a += mempool_a;
+        mempool_sum_f += mempool_f;
+    }
+    fclose(fp);
+
+    /* for hash */
     fp = fopen("hash.txt", "r");
     if (!fp) {
         printf("ERROR opening input file hash.txt\n");
@@ -61,8 +81,8 @@ int main(void)
         hash_sum_f += hash_f;
     }
 
-    fprintf(output, "append() %lf %lf %lf\n",orig_sum_a / 100.0, opt_sum_a / 100.0, hash_sum_a / 100.0);
-    fprintf(output, "findName() %lf %lf %lf", orig_sum_f / 100.0, opt_sum_f / 100.0, hash_sum_f / 100.0);
+    fprintf(output, "append() %lf %lf %lf %lf\n",orig_sum_a / 100.0, opt_sum_a / 100.0, mempool_sum_a / 100.0, hash_sum_a / 100.0);
+    fprintf(output, "findName() %lf %lf %lf %lf", orig_sum_f / 100.0, opt_sum_f / 100.0, mempool_sum_f / 100.0, hash_sum_f / 100.0);
     fclose(output);
     fclose(fp);
     return 0;
