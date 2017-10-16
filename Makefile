@@ -27,7 +27,7 @@ phonebook_opt: $(SRCS_common) phonebook_opt.c phonebook_opt.h
 
 phonebook_mempool: $(SRCS_common) phonebook_mempool.c phonebook_mempool.h
 	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
-		-DIMPL="\"$@.h\"" -DPOOL="1" -o $@ \
+		-DIMPL="\"$@.h\"" -o $@ \
 		$(SRCS_common) $@.c
 
 phonebook_hash: $(SRCS_common) phonebook_hash.c phonebook_hash.h
